@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.kotlinlesson13.db.Book
 import com.example.kotlinlesson13.db.BookObj
+import com.example.kotlinlesson13.db.BooksFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -20,11 +21,20 @@ class MainActivity : AppCompatActivity() {
     lateinit var year: String
     lateinit var description: String
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val db = BookObj.bookDao
 
+        lifecycleScope.launch(Dispatchers.IO) {
+            val books = db.getAll()
+            if (books.size == 0) {
+                for (el in BooksFactory().createBooks()) {
+                    db.insert(el)
+                }
+            }
+        }
         findViewById<EditText>(R.id.descriptionView).setOnEditorActionListener { _, actionId, _ ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> {
@@ -33,16 +43,15 @@ class MainActivity : AppCompatActivity() {
                     autor = findViewById<EditText>(R.id.autorView).text.toString()
                     year = findViewById<EditText>(R.id.yeraView).text.toString()
                     description = findViewById<EditText>(R.id.descriptionView).text.toString()
-//                    val listBook = listOf<Book>(
-//                        Book("a", "a", "a", "a"),
-//                        Book("b", "b", "b", "b"),
-//                        Book("c", "c", "c", "c"),
-//                        Book("d", "d", "d", "d")
-//                    )
+
 
                     lifecycleScope.launch(Dispatchers.IO) {
                         db.insert(Book(name, autor, year, description))
                     }
+                    findViewById<EditText>(R.id.nameView).text.clear()
+                    findViewById<EditText>(R.id.autorView).text.clear()
+                    findViewById<EditText>(R.id.yeraView).text.clear()
+                    findViewById<EditText>(R.id.descriptionView).text.clear()
 
                     true
                 }
@@ -59,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         val button_2 = findViewById<Button>(R.id.load_button)
         button_2.setOnClickListener {
-            startActivity(Intent(this,AllBookActivity::class.java))
+            startActivity(Intent(this, AllBookActivity::class.java))
         }
     }
 

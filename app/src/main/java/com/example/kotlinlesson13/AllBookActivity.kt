@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kotlinlesson13.db.Book
-import com.example.kotlinlesson13.db.BookDao
 import com.example.kotlinlesson13.db.BookObj
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,19 +23,24 @@ class AllBookActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all_book)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+
 
         lifecycleScope.launch(Dispatchers.IO) {
             bookList = db.getAll()
+            recyclerView.adapter = MyAdapter(bookList)
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = MyAdapter(bookListItems, bookList)
+        recyclerView.addItemDecoration(
+            DividerItemDecoration
+                (this, LinearLayoutManager.VERTICAL)
+        )
 
 
     }
 
-    class MyAdapter(private val items: List<BookItems>, val bookList:List<Book>) :
+    class MyAdapter(private val bookList: List<Book>) :
         RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -56,16 +61,16 @@ class AllBookActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
 
-            items[position].apply {
-                holder.name.text = bookList.get(position).name
-                holder.autor.text = bookList.get(position).author
-                holder.year.text = bookList.get(position).year
-                holder.description.text = bookList.get(position).description
+            bookList[position].apply {
+                holder.name.text = bookList[position].name
+                holder.autor.text = bookList[position].author
+                holder.year.text = bookList[position].year
+                holder.description.text = bookList[position].description
             }
 
         }
 
-        override fun getItemCount() = items.size
+        override fun getItemCount() = bookList.size
 
 
     }
