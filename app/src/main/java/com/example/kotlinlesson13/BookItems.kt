@@ -7,7 +7,7 @@ data class BookItems(
     val description: String
 )
 
-var bookList = listOf<BookItems>(
+var bookListItems = listOf(
     BookItems("Name: ", "Autor: ", "Year: ", "Description: "),
     BookItems("Name: ", "Autor: ", "Year: ", "Description: "),
     BookItems("Name: ", "Autor: ", "Year: ", "Description: "),

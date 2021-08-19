@@ -6,21 +6,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.kotlinlesson13.db.Book
 import com.example.kotlinlesson13.db.BookDao
+import com.example.kotlinlesson13.db.BookObj
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AllBookActivity : AppCompatActivity() {
 
-    lateinit var bookDao: BookDao
+    val db = BookObj.bookDao
+    lateinit var bookList: List<Book>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all_book)
 
+        lifecycleScope.launch(Dispatchers.IO) {
+            bookList = db.getAll()
+        }
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = MyAdapter(bookListItems, bookList)
+
 
     }
 
-    class MyAdapter(private val items: List<BookItems>) :
+    class MyAdapter(private val items: List<BookItems>, val bookList:List<Book>) :
         RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -37,12 +52,15 @@ class AllBookActivity : AppCompatActivity() {
             return ViewHolder(view)
         }
 
+
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+
             items[position].apply {
-                holder.name.text = name
-                holder.autor.text = autor
-                holder.year.text = year
-                holder.description.text = description
+                holder.name.text = bookList.get(position).name
+                holder.autor.text = bookList.get(position).author
+                holder.year.text = bookList.get(position).year
+                holder.description.text = bookList.get(position).description
             }
 
         }
@@ -51,4 +69,5 @@ class AllBookActivity : AppCompatActivity() {
 
 
     }
+
 }
